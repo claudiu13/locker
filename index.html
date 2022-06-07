@@ -9,12 +9,64 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-    <script type="text/javascript" src="block.js"></script>
 </head>
 
 <body>
 
-    <input id="connect" type="button" value="Connect" onclick="Connect()">
+    <div>
+        <button id='loginButton'>
+          Login with MetaMask
+        </button>
+        <p id='userWallet'></p>
+      </div>
+    <script>
+        window.userWalletAddress = null
+        const loginButton = document.getElementById('loginButton')
+        const userWallet = document.getElementById('userWallet')
+    
+        function toggleButton() {
+          if (!window.ethereum) {
+            loginButton.innerText = 'MetaMask is not installed'
+            return false
+          }
+    
+          loginButton.addEventListener('click', loginWithMetaMask)
+        }
+    
+        async function loginWithMetaMask() {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+            .catch((e) => {
+              console.error(e.message)
+              return
+            })
+          if (!accounts) { return }
+    
+          window.userWalletAddress = accounts[0]
+          userWallet.innerText = window.userWalletAddress
+          loginButton.innerText = 'Sign out of MetaMask'
+    
+          loginButton.removeEventListener('click', loginWithMetaMask)
+          setTimeout(() => {
+            loginButton.addEventListener('click', signOutOfMetaMask)
+          }, 200)
+        }
+    
+        function signOutOfMetaMask() {
+          window.userWalletAddress = null
+          userWallet.innerText = ''
+          loginButton.innerText = 'Sign in with MetaMask'
+    
+          loginButton.removeEventListener('click', signOutOfMetaMask)
+          setTimeout(() => {
+            loginButton.addEventListener('click', loginWithMetaMask)
+          }, 200)
+        }
+    
+        window.addEventListener('DOMContentLoaded', () => {
+          toggleButton()
+        });
+      </script>
+
 
     <h3>Token Address</h3>
     <input type="text">
